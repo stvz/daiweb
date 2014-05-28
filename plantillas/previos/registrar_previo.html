@@ -1,0 +1,54 @@
+{% extends 'base.html' %} 
+
+{% block titulo %}
+    - Previos
+{% endblock %}
+    
+{% block js %}
+<script>
+    $('#id_referencia').addClass('form-control');
+    $('#id_usuario').parent().css('display','None');
+    
+    function agregar_archivo(){
+        var r=$("#tbl_archivos >tbody").children().size()+1;
+        $("#tbl_archivos > tbody:last").append("<tr class='active'><td style= 'width: 10%;'><h5>"+r+"</h5></td><td style= 'width: 50%;'><input type='file' class='form-control input-md' /> </td><td style= 'width: 30%;'><input type='text' class='form-control input-md'/> </td> <td style= 'width: 10%;'><h5></h5> </td></tr>");
+    }
+    
+</script>
+{% endblock %}
+{% block main %}
+    <form method='POST'>
+        {% csrf_token %}
+        <div class="row clearfix">
+            <div class="col-md-4 column">
+                {{ form.as_p }}
+            </div>
+            <div class="col-md-4 column">
+            </div>
+            <div class="col-md-4 column">
+                 <button type="button" class="btn btn-primary" id='btn_agregar' onclick='agregar_archivo()'>Agregar</button>
+            </div>
+        </div>
+        
+        <table  class="table table-condensed table-hover header-fixed tabla_archivos" name='tbl_archivos' id='tbl_archivos'>
+				<thead name= 'tbl_encabezado_archivos' id ='tbl_encabezado_archivos'>
+					<tr>
+						<th style= 'width: 10%;'>
+							#
+						</th>
+						<th style= 'width: 50%;'>
+							Archivo
+						</th>
+						<th style= 'width: 30%;'>
+							Descripcion Breve
+						</th>
+                        <th style= 'width: 10%;'>
+                            <br>
+                        </th>
+					</tr>
+				</thead>
+				<tbody style="height: 277px;" name="tbl_cuerpo_archivos" id="id_tbl_cuerpo_archivos" ></tbody>
+			</table>
+    </form>
+    
+{% endblock %}

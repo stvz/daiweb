@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+	<div class="row clearfix">
+		<!-- Boton para cargar la factura -->
+		<div class="col-md-12 column" style="padding-bottom: 10px; ">
+			<button type="button" class="btn btn-primary btn-default" id="btn_cargar_archivo">Cargar Archivo</button>
+			<button type="button" class="btn btn-primary btn-default disabled" id="btn_cargar_factura">Cargar Factura</button>
+			<button type="button" class="btn btn-primary btn-default disabled" id="btn_limpiar_formulario">Limpiar</button>
+			<button type="button" class="btn btn-primary btn-default disabled" id="btn_importar_factura">Importar Factura</button>
+			<button type="button" class="btn btn-primary btn-default disabled" id="btn_exportar_condensado">Exportar Condensado</button>
+		</div>
+		<!-- Formulario para la carga del archivo. -->
+		<div class="container" id='div_archivo' style="display: none;">
+			<div class="row clearfix">
+				<div class="col-md-12 column" >
+					<div class="col-md-4 column">
+					</div>
+					<div class="col-md-4 column">
+				
+						<form role="form" id="archivo" action='/tracking/carga_factura' method='POST' enctype="multipart/form-data" >
+							{% csrf_token %}
+							<div class="form-group">
+								 <label class="control-label" for="patente">Patente</label>
+								 <input type="text" class="form-control input-md" name="patente" id="patente" />
+							</div>
+							<div class="form-group">
+								 <label class="control-label" for="clave_proveedor">Clave Proveedor</label>
+								 <input type="text" class="form-control input-md" name="clave_proveedor" id="clave_proveedor" />
+							</div>
+							<div class="form-group">
+								<label class="control-label" for="clave_cliente">Clave Cliente</label>
+								<input type="text"  class="form-control input-md" name="clave_cliente" id="clave_cliente" />
+							</div>
+							<div class="form-group ">
+								 <label class="control-label " for="layout_factura">Archivo</label>
+									<input type="file" class="form-control input-md" name="layout_factura" id="layout_factura" />
+							</div>
+							<button type="button" id='btn_cargar_factura' class="btn btn-default">Cargar</button>
+						</form>
+					</div>
+					<div class="col-md-4 column">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 column">
+			<form class="form-horizontal col-md-12">
+			<fieldset class="col-md-12">
+			
+			<!-- Form Name -->
+			<legend>Factura Comercial</legend>
+			<!-- Factura-->
+			<div class="form-group">
+			  <label class="col-md-2 control-label" for="textinput">Factura</label>  
+			  <div class="col-md-4">
+			  <input id="numero_factura" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			  <label class="col-md-2 control-label" for="textinput">Fecha</label>  
+			  <div class="col-md-4">
+			  <input id="fecha_factura" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			</div>
+			
+			<!-- Proveedor-->
+			<div class="form-group">
+			  <label class="col-md-2 control-label" for="textinput">Proveedor</label>  
+			  <div class="col-md-4">
+			  <input id="nombre_proveedor" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			  <label class="col-md-2 control-label" for="textinput">Direccion</label>  
+			  <div class="col-md-4">
+			  <input id="direccion_proveedor" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			</div>
+			
+			<!-- Cliente-->
+			<div class="form-group">
+			  <label class="col-md-2 control-label" for="textinput">Comprador</label>  
+			  <div class="col-md-4">
+			  <input id="nombre_comprador" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			  <label class="col-md-2 control-label" for="textinput">Direccion</label>  
+			  <div class="col-md-4">
+			  <input id="direccion_comprador" name="textinput" type="text" class="form-control input-md">
+			  </div>
+			</div>
+			
+			
+			
+			</fieldset>
+			</form>
+			<h4>
+				Mercancias
+			</h4>
+			<table class="table table-striped header-fixed" id="mercancias_factura">
+				<thead>
+					<tr>
+						<th>
+							#
+						</th>
+						<th>
+							Clave Producto
+						</th>
+						<th>
+							Descripcion
+						</th>
+						<th>
+							Cantidad
+						</th>
+						<th>
+							Unidad
+						</th>
+						<th>
+							Precio Unitario
+						</th>
+						<th>
+							Importe
+						</th>
+						<th>
+							USD
+						</th>
+					</tr>
+				</thead>
+				<tbody id="detalle_mercancias_factura">
+				</tbody>
+			</table>
+		</div>
+		
+	</div>
+</div>
+{% endblock %}
+
+{% block js%}
+	
+	<script>
+		
+		$(document).ready(function(){
+			
+			
+			$('#btn_cargar_archivo').on('click',function(e) {
+				//code
+				e.preventDefault();
+				$('#div_archivo').css('display','block');
+			});
+			$('#btn_cargar_factura').on('click',function(event){
+				event.preventDefault();
+				
+				$.ajax({
+					url: $(this).attr('action'),
+					type: $(this).attr('method'),
+					cache: false,
+					data: $(this).serialize(),
+					files ,
+					async: false ,
+					success: function(data) {
+						$('#mercancias_factura').empty();
+						alert(data);
+						//$('#detalle_mercancias_factura').append('<tr><td>my data</td><td>more data</td></tr>')
+					},
+					error: function(data) {
+						
+					},
+					
+				});
+				return false;
+			});
+		});
+	</script>
+{% endblock %}
+{% comment %}
+{% block static_js %}
+	
+	{% if MEDIA_URL %}
+		<script src="{{ MEDIA_URL }}js/importa_factura.js"></script>
+	{% else %}
+		<script src="/media/js/importa_factura.js"></script>
+	{% endif %}
+{% endblock %}	
+
+{% block js_init %}
+	
+	
+	/*
+	$(function(){
+		$('#btn_cargar_archivo').click(carga_archivo());
+	});
+	
+	
+	function carga_archivo(event) {       
+		//code
+		event.preventDefault();
+		$('#div_archivo').css('visibility','visible') ;
+		$('#div_archivo').css('display','block');
+	}
+
+	
+	function upload(event) {
+		event.preventDefault();
+		
+		$.ajax({
+			url: $(this).attr('action'),
+			type: $(this).attr('method'),
+			cache: false,
+			data: $(this).serialize(),
+			files ,
+			async: false ,
+			success: function(data) {
+				$('#mercancias_factura').empty();
+				alert(data);
+				//$('#detalle_mercancias_factura').append('<tr><td>my data</td><td>more data</td></tr>')
+			},
+			error: function(data) {
+				
+			},
+			
+		});
+		#return false;
+	};
+	
+	$(function() {
+		$('#archivo').submit(upload);
+	});
+		
+	*/	
+		
+	
+{% endblock %}
+{% endcomment %}

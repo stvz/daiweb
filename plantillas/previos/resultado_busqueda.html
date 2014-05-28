@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+    {% block main %}
+        
+            <h3 class="text-primary text-left">
+				Referencias Encontradas
+			</h3>
+			<table class="table table-condensed table-hover">
+				<thead>
+					<tr>
+                        <th>
+                        </th>
+						<th>
+							Referencia
+						</th>
+						<th>
+							Fecha 
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+                    {% for previo in refrencias %}
+                        <tr class="{% cycle 'default' 'active' %}">
+                            <td>
+                                <a href="/previos/revisar/?{{ previo.id }}">
+                                    <img border=0 src="/media/img/icons/carpeta.png" width=12px height=12px>
+                                </a> 
+                            </td>
+                            <td>{{ previo.referencia }}</td>
+                            <td>{{ previo.fecha}}</td>
+                        </tr>
+                    {% endfor%}
+				</tbody>
+			</table>
+			<ul class="pagination pagination-lg">
+				{% if referencias.has_previous %}
+                    <li>
+                        <a href="#">Anterior</a>
+                    </li>
+                {% endif %}
+                    <li>
+                        <a href="#"> Pagina {{ referencias.number }} de {{ referencias.paginator.num_pages }} </a>
+                    </li>
+                {% if referencias.has_next %}
+                    <li>
+                        <a href="#">Siguiente</a>
+                    </li>
+                {% endif %}
+			</ul>
+    {% endblock %}

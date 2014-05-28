@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Daiweb {% block titulo %} {% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal para la generación de reportes">
+  <meta name="author" content="Manuel Alejandro Estevez Fernandez">
+  
+  {% block static %}
+    
+  {% if MEDIA_URL %}
+  
+	<!--link rel="stylesheet/less" href="{{ MEDIA_URL }}less/bootstrap.less" type="text/css" /-->
+	<!--link rel="stylesheet/less" href="{{ MEDIA_URL }}less/responsive.less" type="text/css" /-->
+	<!--script src="{{ MEDIA_URL }}js/less-1.3.3.min.js"></script-->
+	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
+	
+	<link href="{{ MEDIA_URL }}css/bootstrap.min.css" rel="stylesheet">
+	<link href="{{ MEDIA_URL }}css/style.css" rel="stylesheet">
+
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="{{ MEDIA_URL }}js/html5shiv.js"></script>
+  <![endif]-->
+
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ MEDIA_URL }}img/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ MEDIA_URL }}img/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ MEDIA_URL }}img/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="{{ MEDIA_URL }}img/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="{{ MEDIA_URL }}img/favicon.png">
+  
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/scripts.js"></script>
+  {% else %}
+	<!--link rel="stylesheet/less" href="/media/less/bootstrap.less" type="text/css" /-->
+	<!--link rel="stylesheet/less" href="/media/less/responsive.less" type="text/css" /-->
+	<!--script src="/media/js/less-1.3.3.min.js"></script-->
+	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
+	
+	<link href="/media/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/media/css/style.css" rel="stylesheet">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+	  <script src="/media/js/html5shiv.js"></script>
+	<![endif]-->
+  
+	<!-- Fav and touch icons -->
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" href="/media/img/apple-touch-icon-57-precomposed.png">
+	<link rel="shortcut icon" href="/media/img/favicon.png">
+  
+	<script type="text/javascript" src="/media/js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="/media/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/media/js/scripts.js"></script>
+  {% endif %}
+{% endblock %}
+  {% block static_js%}
+  {% endblock %}
+    
+  {% block css %}{% endblock %}
+  {% comment %}
+  /*
+   * En el bloque js se agregan funciones creadas con javascript
+   * 
+   */
+  {% endcomment %}
+  
+
+</head>
+
+<body>
+    <div class="container">
+	  <div class="row clearfix">
+		<div class="col-md-12 column">
+                <!-- Encabezado -->
+                {% include 'encabezado.html'%}
+                <!-- Menu / Barra de navegacion -->
+                {% include 'menu.html '%}
+                <!-- Sección general -->
+            {% block main %}
+			{% endblock %}    
+            </div>
+    	</div>
+    </div>
+	{% block js %}{% endblock %}
+</body>
+</html>

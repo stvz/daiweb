@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block main %}
+  {% if not user.is_authenticated %}
+  <div class="col-md-8 column">
+	<div class="jumbotron">
+		<h1>
+			Portal DAIWeb
+		</h1>
+		<p>
+			Deberás ingresar tus credenciales para tener acceso a las diferentes herramientas dispuestas en el portal.
+		</p>
+		<p>
+			<a class="btn btn-primary btn-large" href="#">Learn more</a>
+		</p>
+	</div>
+  </div>
+  
+  
+  <div class="col-md-4 column">
+	  <form role="form" method="POST">
+		{% csrf_token %}
+		  <div class="form-group">
+			   <label for="username">Usuario</label>
+			   <input type="text" placeholder="Ingresa tu usuario." class="form-control" id="username" name="username" />
+		  </div>
+		  <div class="form-group">
+			   <label for="exampleInputPassword1">Password</label>
+			   <input type="password" placeholder="Ingresa tu contraseña." class="form-control"
+					  id="exampleInputPassword1" name='password' />
+		  </div>
+		  <div class="checkbox">
+			   <label><input type="checkbox" />Recordar Sesion</label>
+		  </div>
+		  <button type="submit" class="btn btn-default">Entrar</button>
+	  </form>
+  </div>
+  {% endif %}
+
+{% endblock %}

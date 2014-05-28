@@ -1,0 +1,125 @@
+{%extends 'base.html'%}
+
+{%block js %}
+    <script>
+        
+        $('#id_referencia').select();
+        
+        function open_previo(event) {
+            alert('voy a abrir el previo');
+        }
+        
+        function carga_previos(event){
+            event.preventDefault();
+            elemento_ = event.target.nodeName;
+            if (elemento_ == 'BUTTON') {
+                var hoja_ = 1
+                var consulta_ = $('#id_referencia').val();
+            }else{
+                var hoja_ = 1
+                var consulta_ = $('#id_referencia').val();
+                
+            }
+            
+            $.ajax({
+                url: '/previos/buscar/',
+                data: {'referencia': consulta_ ,'hoja':hoja_},
+                success: function(data, response){
+                    $('#tbl_previos > tbody').empty();
+                    //console.log('hey!!');
+                    for(var i=0;i<data['object_list'].length;i++){
+                        agrega_registro(data['object_list'][i]['fields']['referencia']                        
+                            ,data['object_list'][i]['fields']['fecha']
+                            ,i+1);
+                    };
+                    //console.log('agregando listener');
+                    /*$('#tbl_previos tbody tr').on('click',function(){
+                        alert('Me clickeo');
+                        });*/
+                    //console.log('no se agrego');                    
+                    paginacion(data['number']
+                               ,data['has_next']
+                               ,data['has_previous']);
+                },
+                
+            });
+        };
+        
+        function agrega_registro(referencia_, fecha_ , r_) {
+            $('#tbl_previos > tbody:last').append("<tr> <td style= 'width: 10%;'><h5>"+r_+"</h5></td><td style= 'width: 60%;'><h5>"+referencia_+"</h5></td><td style= 'width: 30%;'><h5>"+fecha_+"</h5></td></tr>")
+        }
+        
+        function paginacion(actual_, proxima_ , anterior_){
+            $('#id_paginado').css('display','block');
+            $('#lista_paginacion').empty();
+            if (anterior_) {
+                $('#lista_paginacion').append('<li><span>Ant</span></li>')
+            };
+            $('#lista_paginacion').append('<li><span>'+actual_+'</span></li>')
+            if (proxima_) {
+                $('#lista_paginacion').append('<li><span>Sig</span></li>')
+            };
+            
+        }
+        
+    </script>
+{% endblock %}
+
+{% block main %}
+<!-- Seccion de la barra de herramientas de esta pagina -->
+<div class="row clearfix">
+	<div class="col-md-12 column">    
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style=" z-index: 0">
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group" style="width: 270px;">
+                    <input type="text" class="form-control" placeholder="Ingresa la referencia a buscar" name='referencia' id='id_referencia' />
+                </div>
+                <button type="button" class="btn btn-default" id='btn_buscar' onclick='carga_previos(event);'>Buscar</button>
+            </form>
+        </nav>
+    </div>
+</div>
+<!-- Tabla para Mostrar Resultados -->
+<table  class="table table-condensed table-hover header-fixed tabla_archivos" name='tbl_previos' id='tbl_previos'>
+    <thead>
+        <tr>
+            <th style= 'width: 10%;'>
+                #
+            </th>
+            <th style= 'width: 60%;'>
+                Referencia
+            </th>
+            <th style= 'width: 30%;'>
+                Fecha Carga
+            </th>
+        </tr>
+    </thead>
+    <tbody style="height: 277px;"></tbody>
+</table>
+<!--  Seccion de Paginado-->
+<div id='id_paginado'>
+    <ul class="pagination" id='lista_paginacion'>
+        <li>
+            <span>Prev</span>
+        </li>
+        <li>
+            <span>1</span>
+        </li>
+        <li>
+            <span>2</span>
+        </li>
+        <li>
+            <span>3</span>
+        </li>
+        <li>
+            <span>4</span>
+        </li>
+        <li>
+            <span>5</span>
+        </li>
+        <li>
+            <span>Next</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}
