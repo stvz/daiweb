@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+	<div class="row clearfix">
+        
+        <div class="alert alert-dismissable alert-success">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+           <h4>
+               Aviso
+           </h4> <strong>Cálculo Exitoso</strong> Se genero correctamente el cálculo de impuestos <a href="#" class="alert-link">Descargar Archivo</a>
+       </div>
+        
+        
+        <div class="alert alert-dismissable alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+           <h4>
+               ¡Error!
+           </h4> <strong>¡Alerta!</strong> Algunos números de parte aún no cuentan con fracción arancelaria. <a href="#" class="alert-link">Descarga Mercancías.</a>
+       </div>
+        
+        <div class="form-group">
+            <label for="mercancia_fileInput">Archivo Mercancía en Transito</label><input type="file" id="mercancia_fileInput" />
+           <p class="help-block">
+               Archivo en formato .xls o xlsx que contiene la información correspondiente de mercancias, factura y BL.
+           </p>
+       </div>
+        <div class="form-group">
+            <label for="glp_fileInput">Archivo GLP</label><input type="file" id="mercancia_fileInput" />
+           <p class="help-block">
+               Archivo en formato .xls o xlsx que contiene la información exportada del Sistema GLP de Samsung.
+           </p>
+       </div>
+        
+            <fieldset>
+            
+            <!-- Form Name -->
+            <legend>Incrementables</legend>
+            
+            <!-- Text input-->
+            <div class="form-group">
+              <label for="textinput">Fletes</label>
+                <input id="textinput" name="textinput" type="text" placeholder="999999999.99">
+                <label class="control-label" for="selectbasic">Moneda</label>
+                <select id="selectbasic" name="selectbasic" class="input-xlarge">
+                  <option>USD</option>
+                  <option>MXN</option>
+                  <option>EUR</option>
+                </select>
+                <p class="help-block">Ingresar el valor de los fletes y la moneda.</p>
+            </div>
+            
+            <!-- Text input-->
+            <div class="form-group">
+              <label for="textinput">Embalajes</label>
+                <input id="textinput" name="textinput" type="text" placeholder="999999999.99">
+                <label class="control-label" for="selectbasic">Moneda</label>
+                <select id="selectbasic" name="selectbasic" class="input-xlarge">
+                  <option>USD</option>
+                  <option>MXN</option>
+                  <option>EUR</option>
+                </select>
+                <p class="help-block">Ingresar el valor de los embalajes y la moneda.</p>
+            </div>
+            <!-- Text input-->
+            <div class="form-group">
+              <label for="textinput">Seguros</label>
+                <input id="textinput" name="textinput" type="text" placeholder="999999999.99">
+                <label class="control-label" for="selectbasic">Moneda</label>
+                <select id="selectbasic" name="selectbasic" class="input-xlarge">
+                  <option>USD</option>
+                  <option>MXN</option>
+                  <option>EUR</option>
+                </select>
+                <p class="help-block">Ingresar el valor de los seguros y la moneda.</p>
+            </div>
+            <!-- Text input-->
+            <div class="form-group">
+              <label for="textinput">Otros</label>
+                <input id="textinput" name="textinput" type="text" placeholder="999999999.99">
+                <label class="control-label" for="selectbasic">Moneda</label>
+                <select id="selectbasic" name="selectbasic" class="input-xlarge">
+                  <option>USD</option>
+                  <option>MXN</option>
+                  <option>EUR</option>
+                </select>
+                <p class="help-block">Ingresar el valor de otros y la moneda.</p>
+            </div>
+            
+            <!-- Button -->
+            <div class="form-group">
+                <button id="singlebutton" name="singlebutton" class="btn btn-primary">Calcular</button>
+            </div>
+            
+            </fieldset>
+    </div>
+</div>
+
+{% endblock %}
