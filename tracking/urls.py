@@ -15,6 +15,10 @@ urlpatterns = patterns('',
     
     
     # Reportes
+    # vivas
     url(r'^reporte_vivas/$',ReporteVivas.as_view(), name='reporte_vivas'),
     url(r'^get_reporte_vivas/$',reporte_vivas, name='reportes_get_reporte_vivas'),
+    #pagos hechos por referencia
+    url(r'^reporte_pagos_hechos_referencia/$',PagosHechosReferencia.as_view(), name='reporte_pagos_hechos_referencia'),
+    url(r'^get_reporte_pagos_hechos_referencia/$',reporte_pagos_hechos_referencia, name='reportes_get_pagos_hechos_referencia'),
 )

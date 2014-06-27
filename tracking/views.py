@@ -15,9 +15,10 @@ import json, os
 from django.views.generic import CreateView, TemplateView
 from django.views.generic.detail import BaseDetailView, SingleObjectTemplateResponseMixin
 from django.template.loader import render_to_string
-from utils.reportes_extranet import referencias_vivas
+from utils.reportes_extranet import referencias_vivas, pagos_hechos_referencia
 import  daiweb.settings as conf
 import datetime
+import re
 
 
 class JSONResponseMixin(object):
@@ -78,7 +79,10 @@ class Calculo_impuestos(TemplateView):
 
 class ReporteVivas (TemplateView):
     template_name='reportes/reporte_vivas.html'
-    
+
+class PagosHechosReferencia(TemplateView):
+    template_name= 'reportes/reporte_pagos_hechos_referencia.html'
+
 @login_required
 def reporte_vivas(request):
     reporte_ = referencias_vivas.Reporte_vivas('%s'%os.path.join(conf.BASE_DIR,conf.MEDIA_ROOT))
@@ -86,6 +90,27 @@ def reporte_vivas(request):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     xlsx_.save(response)
     response['Content-Disposition'] = 'attachment; filename="Referencias Vivas al %s.xlsx"'%datetime.date.today().isoformat()
+    return response
+
+@login_required
+@csrf_protect
+def reporte_pagos_hechos_referencia(request):
+    
+    if request.method =='GET':
+        #refs_ = re.compile('DAI[0-9]{2}-[0-9]{4,5}[A-Z]*')
+        print request
+        print request.GET
+        referencias_ = request.GET.get('referencias').split(",")
+        honorarios_ = request.GET.get('honorarios')
+        print honorarios_
+        print referencias_
+        reporte_ = pagos_hechos_referencia.Pagos_hechos(referencias_, honorarios_)
+        xlsx_= reporte_.genera_xlsx()
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        xlsx_.save(response)
+        response['Content-Disposition'] = 'attachment; filename="Pagos Hechos por Referencia.xlsx"'
+
+        
     return response
 
 @login_required
