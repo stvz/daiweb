@@ -18,7 +18,7 @@
   
   
   <div class="col-md-4 column">
-	  <form role="form" method="POST">
+	  <form role="form" method="POST" action='/'>
 		{% csrf_token %}
 		  <div class="form-group">
 			   <label for="username">Usuario</label>
@@ -28,9 +28,6 @@
 			   <label for="exampleInputPassword1">Password</label>
 			   <input type="password" placeholder="Ingresa tu contraseña." class="form-control"
 					  id="exampleInputPassword1" name='password' />
-		  </div>
-		  <div class="checkbox">
-			   <label><input type="checkbox" />Recordar Sesion</label>
 		  </div>
 		  <button type="submit" class="btn btn-default">Entrar</button>
 	  </form>

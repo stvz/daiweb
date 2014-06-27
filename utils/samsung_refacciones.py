@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 #
 #	Clase para la importacion de facturas comerciales
 #	en formato XLSX
@@ -10,6 +10,80 @@ from conector_mysql import Conexion
 
 
 # verificar si es XLS o XLSX para saber el objeto a utilizar.
+"""
+class Mercancia_Transito():
+	
+	dict_mercancia_ = {
+		'guia': ''
+		,'factura': ''
+		,'codigo_producto': ''
+		,'precio_unitario':0
+		,'cantidad': 0
+		,'unidad_medida':''
+		,'importe':''
+		,'clave_proveedor':''
+		,'nombre_proveedor':''
+		,'pais_origen':''
+		,'incoterm': ''
+		,'fecha_embarque':''
+		,'pais_embarque':''
+		,'fecha_estimada':''
+		,'fecha_arribo':''
+		,'moneda': ''
+		,'fraccion': ''
+		,'iva': 00.00
+		,'igi': 00.00}
+	facturas_ = []
+	wb_ = load_workbook(filename= 'C:\\Users\\AlfredoVG.DAIMEX\\Documents\\Codigo\\Proyecto Carga de Facturas\\Reporte de mercancía en transito a detalle.xlsx', use_iterators= True)
+	ws_ = wb_.worksheets[0]
+	ban_ = 0
+	indices_ = {
+		'House BL No.':None
+		,'Invoice Number': None
+		,'Material Code': None
+		,'Net Amount':None
+		,'Delivery Qty.': None
+		,'Qty Unit':None
+		,' Total Amount':None
+		,'clave_proveedor':None
+		,'nombre_proveedor':None
+		,'pais_origen':None
+		,'Incoterms1': None
+		,'Loading Port Out':None
+		,'pais_embarque':None
+		,'Port ETA':None
+		,'fecha_arribo':None
+		,'Currency': None
+	}
+	for row in ws_.iter_rows():
+		if ban_ == 0: #row[0].internal_value=='Delivery No.':
+			for cell_ in row:
+				
+			
+		else:
+			mercancia_ = dict_mercancia_.copy()
+			mercancia_['guia']=row[2].internal_value
+			mercancia_['factura'] = row[3].internal_value
+			mercancia_['codigo_producto'] =row[5].internal_value
+			mercancia_['precio_unitario'] =row[14].internal_value
+			mercancia_['cantidad'] =row[6].internal_value
+			mercancia_['unidad_medida'] =row[13].internal_value
+			mercancia_['importe'] =row[15].internal_value
+			mercancia_['incortem'] = row[17].internal_value
+			mercancia_['moneda'] = row[18].internal_value
+			mercancia_['clave_proveedor'] =row[24].internal_value
+			mercancia_['nombre_proveedor'] =row[25].internal_value
+			mercancia_['pais_origen'] =	row[28].internal_value
+			facturas_.append(mercancia_)
+
+	
+	def __init__(self):
+		
+		
+		return
+"""
+	
+
 
 class Importa_Factura:
 	_archivo = ''

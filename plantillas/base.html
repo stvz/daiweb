@@ -33,6 +33,10 @@
   
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-2.1.0.min.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/bootstrap.min.js"></script>
+	
+	
+	<link href="{{ MEDIA_URL }}css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="{{ MEDIA_URL }}js/bootstrap-editable.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/scripts.js"></script>
   {% else %}
 	<!--link rel="stylesheet/less" href="/media/less/bootstrap.less" type="text/css" /-->
@@ -57,20 +61,67 @@
   
 	<script type="text/javascript" src="/media/js/jquery-2.1.0.min.js"></script>
 	<script type="text/javascript" src="/media/js/bootstrap.min.js"></script>
+	
+	
+	<link href="/media/css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="/media/js/bootstrap-editable.js"></script>
 	<script type="text/javascript" src="/media/js/scripts.js"></script>
+	
   {% endif %}
 {% endblock %}
   {% block static_js%}
   {% endblock %}
     
-  {% block css %}{% endblock %}
+  {% block css %}
+	<style type="text/css">
+	  .dropdown-backdrop {
+		position: static;
+	  }
+	</style>
+  {% endblock %}
   {% comment %}
   /*
    * En el bloque js se agregan funciones creadas con javascript
    * 
    */
   {% endcomment %}
-  
+  <script>
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = jQuery.trim(cookies[i]);
+				// Does this cookie string begin with the name we want?
+				if (cookie.substring(0, name.length + 1) == (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	};
+	
+	function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    };
+	
+	var csrftoken_ = getCookie('csrftoken');
+	$(document).ready(function(){
+	  
+	  
+	  
+	  $.ajaxSetup({
+		  crossDomain: false, // obviates need for sameOrigin test
+		  beforeSend: function(xhr, settings) {
+			  if (!csrfSafeMethod(settings.type)) {
+				  xhr.setRequestHeader("X-CSRFToken", csrftoken_);
+			  }
+		  }
+	  });
+	});
+  </script>
 
 </head>
 
@@ -81,7 +132,7 @@
                 <!-- Encabezado -->
                 {% include 'encabezado.html'%}
                 <!-- Menu / Barra de navegacion -->
-                {% include 'menu.html '%}
+                {% include 'menu.html' %}
                 <!-- Sección general -->
             {% block main %}
 			{% endblock %}    

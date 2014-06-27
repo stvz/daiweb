@@ -141,19 +141,22 @@
 			
 			$('#btn_cargar_archivo').on('click',function(e) {
 				//code
-				e.preventDefault();
+				e.preventDefault(e);
 				$('#div_archivo').css('display','block');
 			});
-			$('#btn_cargar_factura').on('click',function(event){
-				event.preventDefault();
-				
+			$(document).on('click','#btn_cargar_factura',function() {
+				alert('click');
+			});
+			
+			/*
+			$('#btn_cargar_factura').on('click',function(e){
+				event.preventDefault(e);
+				alert('Click');
 				$.ajax({
 					url: $(this).attr('action'),
 					type: $(this).attr('method'),
 					cache: false,
-					data: $(this).serialize(),
-					files ,
-					async: false ,
+					async: true ,
 					success: function(data) {
 						$('#mercancias_factura').empty();
 						alert(data);
@@ -164,8 +167,8 @@
 					},
 					
 				});
-				return false;
-			});
+				//return false;
+			});*/
 		});
 	</script>
 {% endblock %}

@@ -4,7 +4,7 @@
 <div class="container">
 	<div class="row clearfix">
         
-        <div class="alert alert-dismissable alert-success">
+        <div class="alert alert-dismissable alert-success" style="display: none;" id ="div_aviso">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
            <h4>
                Aviso
@@ -12,28 +12,141 @@
        </div>
         
         
-        <div class="alert alert-dismissable alert-danger">
+        <div class="alert alert-dismissable alert-danger" style="display: none;" id="div_error">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
            <h4>
                ¡Error!
            </h4> <strong>¡Alerta!</strong> Algunos números de parte aún no cuentan con fracción arancelaria. <a href="#" class="alert-link">Descarga Mercancías.</a>
        </div>
+        <form role="form" id="archivo_mercancia" action='/tracking/procesa_archivo/' method='POST' enctype="multipart/form-data" >
+            <div class="form-group">
+                <label for="mercancia_fileInput">Archivo Mercancía en Transito</label><input type="file" id="mercancia_fileInput" />
+               <p class="help-block">
+                   Archivo en formato .xls o xlsx que contiene la información correspondiente de mercancias, factura y BL.
+               </p>
+           </div>
+        </form>
         
-        <div class="form-group">
-            <label for="mercancia_fileInput">Archivo Mercancía en Transito</label><input type="file" id="mercancia_fileInput" />
-           <p class="help-block">
-               Archivo en formato .xls o xlsx que contiene la información correspondiente de mercancias, factura y BL.
-           </p>
-       </div>
-        <div class="form-group">
-            <label for="glp_fileInput">Archivo GLP</label><input type="file" id="mercancia_fileInput" />
+        
+        <div id="div_archivo_glp" class="form-group" style="display: none;">
+            <label for="glp_fileInput">Archivo GLP</label><input type="file" id="glp_fileInput" />
            <p class="help-block">
                Archivo en formato .xls o xlsx que contiene la información exportada del Sistema GLP de Samsung.
            </p>
        </div>
-        
+        <!-- En este DIV es donde se desplegará el cuadro con las diferentes guias y facturas
+        encontradas en los archivos, asu vez permitirá la captura de incrementables por guia -->
+        <div id="div_guias_facturas" style="display: block;"><div class="row clearfix">
+            <div class="col-md-12 column">
+                <table class="table" id='tb_guias'>
+                    <thead>
+                        <tr>
+                            <th>
+                                #
+                            </th>
+                            <th>
+                                Guia
+                            </th>
+                            <th>
+                                Fletes
+                            </th>
+                            <th>
+                                Seguros
+                            </th>
+                            <th>
+                                Embalajes
+                            </th>
+                            <th>
+                                Otros
+                            </th>
+                            <th>
+                                Moneda
+                            </th>
+                            <th>
+                                
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!--
+                        <tr>
+                            <td>
+                                1
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                01/04/2012
+                            </td>
+                            <td>
+                                Default
+                            </td>
+                        </tr>
+                        <tr class="active">
+                            <td>
+                                1
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                01/04/2012
+                            </td>
+                            <td>
+                                Approved
+                            </td>
+                        </tr>
+                        <tr class="success">
+                            <td>
+                                2
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                02/04/2012
+                            </td>
+                            <td>
+                                Declined
+                            </td>
+                        </tr>
+                        <tr class="warning">
+                            <td>
+                                3
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                03/04/2012
+                            </td>
+                            <td>
+                                Pending
+                            </td>
+                        </tr>
+                        <tr class="danger">
+                            <td>
+                                4
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                04/04/2012
+                            </td>
+                            <td>
+                                Call in to confirm
+                            </td>
+                        </tr>
+                    -->
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
             <fieldset>
             
+            {% comment %}
             <!-- Form Name -->
             <legend>Incrementables</legend>
             
@@ -86,7 +199,7 @@
                 </select>
                 <p class="help-block">Ingresar el valor de otros y la moneda.</p>
             </div>
-            
+            {% endcomment %}
             <!-- Button -->
             <div class="form-group">
                 <button id="singlebutton" name="singlebutton" class="btn btn-primary">Calcular</button>
@@ -96,4 +209,11 @@
     </div>
 </div>
 
+    {% if MEDIA_URL %}
+		<script src="{{ MEDIA_URL }}js/calculo_impuestos.js"></script>
+	{% else %}
+		<script src="/media/js/calculo_impuestos.js"></script>
+	{% endif %}
+
 {% endblock %}
+
