@@ -83,6 +83,7 @@ class ReporteVivas (TemplateView):
 class PagosHechosReferencia(TemplateView):
     template_name= 'reportes/reporte_pagos_hechos_referencia.html'
 
+@csrf_protect
 @login_required
 def reporte_vivas(request):
     reporte_ = referencias_vivas.Reporte_vivas('%s'%os.path.join(conf.BASE_DIR,conf.MEDIA_ROOT))
@@ -96,20 +97,15 @@ def reporte_vivas(request):
 @csrf_protect
 def reporte_pagos_hechos_referencia(request):
     
-    if request.method =='GET':
-        #refs_ = re.compile('DAI[0-9]{2}-[0-9]{4,5}[A-Z]*')
-        print request
-        print request.GET
-        referencias_ = request.GET.get('referencias').split(",")
-        honorarios_ = request.GET.get('honorarios')
-        print honorarios_
-        print referencias_
-        reporte_ = pagos_hechos_referencia.Pagos_hechos(referencias_, honorarios_)
-        xlsx_= reporte_.genera_xlsx()
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        xlsx_.save(response)
-        response['Content-Disposition'] = 'attachment; filename="Pagos Hechos por Referencia.xlsx"'
-
+    if request.method =='POST':
+        refs_ = re.compile('DAI[0-9]{2}-[0-9]{4,5}[A-Z]*')
+        referencias_ = refs_.findall(request.POST.get('referencias'))
+        honorarios_ = request.POST.get('honorarios')
+        ruta_ = os.path.join(conf.MEDIA_ROOT,'temp','pagos_hechos')
+        reporte_ = pagos_hechos_referencia.Pagos_hechos(ruta_,referencias_, honorarios_)
+        ruta_xlsx_= '%stemp/pagos_hechos/%s'%(conf.MEDIA_URL,reporte_.genera_xlsx())
+        return HttpResponse(json.dumps({'archivo':ruta_xlsx_}),content_type="application/json")
+    
         
     return response
 
@@ -177,7 +173,7 @@ def procesa_archivo(request):
     
     return HttpResponse(json.dumps(respuesta_),content_type="application/json")
     
-
+@login_required
 @csrf_protect 
 def load_factura(request):
     archivo_ = request.FILES['layout_factura']
