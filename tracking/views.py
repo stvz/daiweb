@@ -83,6 +83,11 @@ class ReporteVivas (TemplateView):
 class PagosHechosReferencia(TemplateView):
     template_name= 'reportes/reporte_pagos_hechos_referencia.html'
 
+class LayoutAbbCfdi(TemplateView):
+    template_name= 'reportes/reporte_layout_abb_cfdi.html'
+    
+
+
 @csrf_protect
 @login_required
 def reporte_vivas(request):
@@ -93,13 +98,17 @@ def reporte_vivas(request):
     response['Content-Disposition'] = 'attachment; filename="Referencias Vivas al %s.xlsx"'%datetime.date.today().isoformat()
     return response
 
+# Reporte de Pagos Hechos por Referencia
+# por Manuel Alejandro Estevez Fernandez
+#   Junio 2014
 @login_required
 @csrf_protect
 def reporte_pagos_hechos_referencia(request):
     
     if request.method =='POST':
         refs_ = re.compile('DAI[0-9]{2}-[0-9]{4,5}[A-Z]*')
-        referencias_ = refs_.findall(request.POST.get('referencias'))
+        
+        referencias_ = refs_.findall(request.POST.get('referencias').upper())
         honorarios_ = request.POST.get('honorarios')
         ruta_ = os.path.join(conf.MEDIA_ROOT,'temp','pagos_hechos')
         reporte_ = pagos_hechos_referencia.Pagos_hechos(ruta_,referencias_, honorarios_)
