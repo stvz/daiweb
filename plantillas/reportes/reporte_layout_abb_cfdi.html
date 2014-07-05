@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h3>
+				Reporte de Layout Cuentas de Gastos ABB
+			</h3>
+			<blockquote>
+				<p>
+					Genera el archivo que debe ser enviado para ABB con la relación de las cuentas de gastos y los comprobantes
+				</p>
+			</blockquote>
+            
+		</div>
+		
+		<div class="alert alert-dismissable alert-success" id="download_reporte" style='display: none;'>
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+			   <h4>
+				   Proceso Finalizado
+			   </h4>
+			   Se ha generado satisfactoriamente el reporte, presione el siguiente link para descargarlo <a href="#" download="abb.txt" class="alert-link" id='link_reporte' >Layout ABB CFDI</a>
+		</div>
+        <form role="form" id="form_cfdis" name="form_cfdis" action='/tracking/get_reporte_layout_abb_cdfis/' method='POST'>
+            <table class= "tree table table-striped header-fixed" id="tb_archivos">
+				<thead>
+					<tr>
+						<th style="width: 75%">
+							Archivos
+						</th>
+						<th style="width: 25%">
+							Acciones
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="treegrid-1">
+						<td style='width: 75%'>Cuentas de Gastos</td>
+						<td style='width: 25%'>
+							<img id='img_agregar_cg' src="/media/img/file.png" alt="Agregar" style="padding-left: 10px; padding-right: 10px;" />
+						</td>
+					</tr>
+					
+				</tbody>
+			</table>
+            <button type="button" class="btn btn-primary btn-lg" id="btn_genera_reporte">Generar</button>
+        </form>
+        <iframe name="tmpFrame" id="tmpFrame" width="1" height="1" style="visibility:hidden;position:absolute;display:none"></iframe> 
+	</div>
+</div>
+{% endblock %}
+
+
+
+{% block js %}
+	{% if MEDIA_URL %}
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.treegrid.js"></script>
+		<link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.treegrid.css">
+	{% else %}
+		<script type="text/javascript" src="/media/js/jquery.treegrid.js"></script>
+		<link rel="stylesheet" href="/media/css/jquery.treegrid.css">
+	{% endif %}
+
+		
+    <script>
+		$('.tree').treegrid();
+		var archivos_ ;
+		
+		
+        $(document).ready(function(){
+			function actualizaNombre(e){
+				e.stopPropagation();
+                e.preventDefault();
+				switch (e.target.value.substring(e.target.value.lastIndexOf('.')+1).toLowerCase()){
+					case 'xml':
+						if (e.target.id.indexOf('_0')!= -1) {
+							id_ = e.target.id.split('_')[e.target.id.split('_').length-2];
+							$(".treegrid-"+id_).addClass('success');
+						}else{
+							id_ = e.target.id.split('_')[e.target.id.split('_').length-1];
+							$(".treegrid-"+id_).addClass('success');
+						}
+						break;
+					default:
+						e.target.value = '';
+						alert('Debes ingresar un archivo extensión xml');
+						break;
+				}
+			};
+			
+			function preparaArchivos(e){
+				e.stopPropagation();
+                e.preventDefault();
+				var datos_ = new FormData();
+				
+				$.each($('#tb_archivos > tbody > tr > td > input:file'),function(key,value){
+					datos_.append(value.id,value.files[0])
+				});
+				
+				$.ajax({
+					url: $('#form_cfdis').attr('action'),
+					method: $('#form_cfdis').attr('method'),
+					data: datos_,
+					processData: false,
+					contentType: false,
+					success: function(data,textStatus,jqXHR){
+						//alert(data.archivo);
+						if (data.estatus=='ok') {
+							$('#download_reporte').css('display','block');
+							$('#download_reporte > a ').attr('href','');
+							$('#download_reporte > a ').attr('href',"data:text/plain;charset=UTF-8,"+data.archivo);
+							var archivos_ ;
+						}else{
+							
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown){
+                        // Handle errors here
+                        console.log('ERRORS: ' + textStatus);
+                        // STOP LOADING SPINNER
+                    }
+				});
+			};
+			
+			function quita_ph(e) {
+				e.stopPropagation();
+                e.preventDefault();
+				id_ = e.target.id.split('_')[e.target.id.split('_').length-1];
+				$(".treegrid-"+id_).remove();
+			};
+			
+			function agrega_ph(e) {
+				// Evitando eventos de carga yh propagacion
+				e.stopPropagation();
+                e.preventDefault();
+				//obteniendo el nodo padre
+				parent_id_ = e.target.id.split('_')[e.target.id.split('_').length-1];
+				//
+				current_ = $('#tb_archivos > tbody > tr').length+1;
+				$('#tb_archivos > tbody > tr').eq(parent_id_-1).after("<tr class='treegrid-"+current_+" treegrid-parent-"+parent_id_+"' ><td style='width: 75%' ><label for='xml_input_"+parent_id_+"_"+current_+"'>XML P.H.</label><input type='file' id='xml_input_"+parent_id_+"_"+current_+"'></td><td style='width: 25%'> <button class='btn btn-sm btn-danger' id='del_ph_"+parent_id_+"_"+current_+"'>Remover </button></td></tr>");
+				$(".treegrid-"+current_+" > td > button ").on('click',quita_ph);
+				$(".treegrid-"+current_+" > td > input:file ").on('change',actualizaNombre);
+				$('.tree').treegrid();
+			};
+			
+			function quita_cg(e) {
+				e.stopPropagation();
+                e.preventDefault();
+				parent_id_ = e.target.id.split('_')[e.target.id.split('_').length-1];
+				$('#fila_'+parent_id_).remove();
+				$(".treegrid-parent-"+parent_id_).remove();
+				
+			};
+			
+			
+			
+			$('#img_agregar_cg').on('click',function(e){
+				e.stopPropagation();
+                e.preventDefault();
+				current_ = $('#tb_archivos > tbody > tr').length+1;
+				$('#tb_archivos tbody').append("<tr class='treegrid-"+current_+" treegrid-parent-1' id='fila_"+current_+"' ><td style='width: 75%' ><label for='xml_input_"+current_+"_0'>XML C.G.</label><input type='file' id='xml_input_"+current_+"_0'></td><td style='width: 25%' ><button class='btn btn-sm btn-success' id='add_"+current_+"' >Agregar P.H.</button> <button class='btn btn-sm btn-danger' id='del_"+current_+"' >Remover C.G.</button> </td></tr>")
+				$("#add_"+current_).on('click',agrega_ph);
+				$("#del_"+current_).on('click',quita_cg);
+				$(".treegrid-"+current_+" > td > input:file ").on('change',actualizaNombre);
+				$('.tree').treegrid();
+				
+			});
+			
+			$('#btn_genera_reporte').on('click',preparaArchivos);
+        });
+    </script>
+{% endblock %}

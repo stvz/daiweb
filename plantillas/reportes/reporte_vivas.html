@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h3>
+				Reporte de Referencias Vivas
+			</h3>
+			<blockquote>
+				<p>
+					Este reporte tiene como finalidad monitorear todas aquellas referencias que han sido dadas de alta, y aún no han sido despachadas o finalizadas.
+				</p>
+
+			</blockquote> <button type="button" class="btn btn-primary btn-lg" id="btn_genera_reporte">Generar</button>
+		</div>
+        <iframe name="tmpFrame" id="tmpFrame" width="1" height="1" style="visibility:hidden;position:absolute;display:none"></iframe> 
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function(){
+            $('#btn_genera_reporte').on('click',function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                //$('#tmpFrame').on('load',)
+                $('#tmpFrame').attr('src','/tracking/get_reporte_vivas');
+            });
+        });
+    </script>
+{% endblock %}

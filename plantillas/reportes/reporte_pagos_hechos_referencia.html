@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h3>
+				Reporte de Pagos Hechos por Referencia
+			</h3>
+			<blockquote>
+				<p>
+					Este reporte genera el detalle de pagos hechos en el formato solicitado por samsung para generarse de manera diaria.
+				</p>
+			</blockquote>
+            
+		</div>
+        <form role="form" id="form_referencias" name="form_referencias" action='/tracking/get_reporte_pagos_hechos_referencia/' method='POST'>
+            <div class="form-group">
+                <label for="referencias">Referencias</label>
+                <a href='#' id ='referencias'></a>
+                <input id='referencias_val' value= '' type='hidden'/>
+           </div>
+            <div class="form-group">
+                <label for="honorarios">Honorarios</label>
+                <a href='#' id ='honorarios'></a>
+                <input id='honorarios_val' value= '' type='hidden'/>
+           </div>
+            <button type="button" class="btn btn-primary btn-lg" id="btn_genera_reporte">Generar</button>
+        </form>
+        <iframe name="tmpFrame" id="tmpFrame" width="1" height="1" style="visibility:hidden;position:absolute;display:none"></iframe> 
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function(){
+            $.fn.editable.defaults.mode = 'popup';
+            
+            $('#referencias').editable({
+                type : 'textarea',
+                emptytext: 'DAIXX-99999A,DAIXX-99999A,',
+                title: 'Ingresa las referencias a buscar separadas por comas.',
+            });
+            $('#honorarios').editable({
+                type : 'number',
+                step: '10',
+                title: 'Captura el importe de Embalajes',
+                value: 1200
+            });
+            
+            $('#btn_genera_reporte').on('click',function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                datos_ = new FormData();
+                datos_.append('honorarios',$('#honorarios').text());
+                datos_.append('referencias',$('#referencias').text());
+                //$('#tmpFrame').attr('src','/tracking/get_reporte_pagos_hechos_referencia/?honorarios='+$('#honorarios').text()+'&referencias='+$('#referencias').text());
+                
+                
+                $.ajax({
+                    url: '/tracking/get_reporte_pagos_hechos_referencia/',
+                    method: 'POST',
+                    //typeData: 'application/json'>,
+                    processData: false,
+                    contentType: false,
+                    //contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    data:  datos_,//{honorarios: $('#honorarios').text() , referencias: $('#referencias').text() }, 
+                    success: function(data,textStatus,jqXHR){
+                        $('#tmpFrame').attr('src',data.archivo);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        // Handle errors here
+                        console.log('ERRORS: ' + textStatus);
+                        // STOP LOADING SPINNER
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
