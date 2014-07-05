@@ -23,5 +23,5 @@ urlpatterns = patterns('',
     url(r'^get_reporte_pagos_hechos_referencia/$',reporte_pagos_hechos_referencia, name='reportes_get_pagos_hechos_referencia'),
     # Layout ABB CFDIS
     url(r'^reporte_layout_abb_cdfis/$',LayoutAbbCfdi.as_view() ,name='reporte_layout_abb_cfdis'),
-    url(r'^get_reporte_layout_abb_cdfis/$',LayoutAbbCfdi.as_view() ,name='reporte_get_layout_abb_cfdis'),
+    url(r'^get_reporte_layout_abb_cdfis/$',reporte_layout_abb_cdfis ,name='reporte_get_layout_abb_cfdis'),
 )

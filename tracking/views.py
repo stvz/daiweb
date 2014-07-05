@@ -11,14 +11,17 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt, requires_csr
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-import json, os
 from django.views.generic import CreateView, TemplateView
 from django.views.generic.detail import BaseDetailView, SingleObjectTemplateResponseMixin
 from django.template.loader import render_to_string
 from utils.reportes_extranet import referencias_vivas, pagos_hechos_referencia
+from utils.reportes_extranet.abb_reporte_cfdi import Abb
+
 import  daiweb.settings as conf
+
+import json, os
 import datetime
-import re
+import re , collections 
 
 
 class JSONResponseMixin(object):
@@ -117,6 +120,44 @@ def reporte_pagos_hechos_referencia(request):
     
         
     return response
+
+#   Reporte Layout de ABB para CFDIs
+#   por: Manuel Alejandro Estevez Fernandez
+#       Julio 2014
+#
+@login_required
+@csrf_protect
+def reporte_layout_abb_cdfis(request):
+    
+    respuesta_ = {'estatus': 'error', 'mensaje':'Metodo incorrecto', 'archivo': '' }
+    
+    if request.method == 'POST':
+        
+        reporte_ = Abb()
+        if len(request.FILES.keys())>0:
+            xml_ordenados_ = collections.OrderedDict(sorted(request.FILES.items()))
+            
+            for xml_ in xml_ordenados_:
+                
+                if int(xml_.split('_')[-1]) == 0 :
+                    id_ = xml_.split('_')[-2]
+                    parent_id_ = None
+                else:
+                    id_ = xml_.split('_')[-1]
+                    parent_id_ = xml_.split('_')[-2]
+                    
+                reporte_.add_xml(request.FILES.get(xml_),id_,parent_id_)
+            
+            respuesta_['archivo'] = reporte_.genera_reporte()
+            respuesta_['estatus'] = 'ok'
+            respuesta_['mensaje'] = ''
+        else:
+            respuesta_['estatus'] = 'error'
+            respuesta_['mensaje'] = 'No se han enviado archivos.'
+        
+    return HttpResponse(json.dumps(respuesta_), content_type='application/json')
+
+
 
 @login_required
 @csrf_protect

@@ -21,11 +21,11 @@
 
 .header-fixed > tbody {
     overflow-y: auto;
-    height: 150px;
+    height: 250px;
 }
 
 .header-fixed > tbody > tr > td,
 .header-fixed > thead > tr > th {
-    width: 20%;
+    width: auto;
     float: left;
 }
