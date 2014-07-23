@@ -13,6 +13,9 @@ urlpatterns = patterns('',
     #url(r'^procesa_archivo/$',login_required(ProcesaArchivos.as_view()), name='utilerias_procesa_archivos'),
     url(r'^procesa_archivo/$',procesa_archivo , name='utilerias_procesa_archivo'),
     
+    # importa archivos
+    url(r'^importa_archivos/$',ImportaArchivo.as_view(), name='utilerias_importa_archivo'),
+    
     
     # Reportes
     # vivas

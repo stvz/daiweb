@@ -75,7 +75,7 @@ class Reporte_vivas:
                         'Estado: ',eta_.d_nombre
                         ,' Fecha: ', date_format(f_fecha,'%d-%m-%Y')
                         , if( rtrim(ltrim(edo_.m_observ)) != '',concat(' Observ: ', rtrim(ltrim(edo_.m_observ))),'') )
-                        separator '\n'),'') as Estatus
+                        separator '\r\n'),'') as Estatus
                 , ejecutivos as Ejecutivos
             from ssdagi01 op_
             left join c01refer ref_ on op_.refcia01 = ref_.refe01
@@ -83,8 +83,8 @@ class Reporte_vivas:
             from c09cligr dgrp_
             left join c08grupo grp_ on dgrp_.grup09 = grp_.grup08
             group by dgrp_.clie09 ) as ejecutivos_ on op_.cvecli01 = ejecutivos_.clie09
-            left join dai_status.etxpd edo_ on edo_.c_referencia = op_.refcia01
-            left join dai_status.etaps eta_ on edo_.n_etapa =eta_.n_etapa
+            left join etxpd edo_ on edo_.c_referencia = op_.refcia01
+            left join etaps eta_ on edo_.n_etapa =eta_.n_etapa
             where ref_.modo01 = 'T' 
             and (date_format(ref_.fdsp01,'%Y%m%d') = '00000000' or date_format(ref_.fdsp01,'%Y%m%d') = '' )
             and op_.cveped01 != 'R1' and ref_.csit01 != 'FIN'
@@ -109,7 +109,7 @@ class Reporte_vivas:
                         'Estado: ',eta_.d_nombre
                         ,' Fecha: ', date_format(f_fecha,'%d-%m-%Y')
                         , if( rtrim(ltrim(edo_.m_observ)) != '',concat(' Observ: ', rtrim(ltrim(edo_.m_observ))),'') )
-                        separator '\n'),'') as Estatus
+                        separator '\r\n'),'') as Estatus
                 , ejecutivos
             from ssdage01 op_
             left join c01refer ref_ on op_.refcia01 = ref_.refe01
@@ -117,8 +117,8 @@ class Reporte_vivas:
             from c09cligr dgrp_
             left join c08grupo grp_ on dgrp_.grup09 = grp_.grup08
             group by dgrp_.clie09 ) as ejecutivos_ on op_.cvecli01 = ejecutivos_.clie09
-            left join dai_status.etxpd edo_ on edo_.c_referencia = op_.refcia01
-            left join dai_status.etaps eta_ on edo_.n_etapa =eta_.n_etapa
+            left join etxpd edo_ on edo_.c_referencia = op_.refcia01
+            left join etaps eta_ on edo_.n_etapa =eta_.n_etapa
             where ref_.modo01 = 'T' 
             and (date_format(ref_.fdsp01,'%Y%m%d') = '00000000' or date_format(ref_.fdsp01,'%Y%m%d') = '' )
             and op_.cveped01 != 'R1' and ref_.csit01 != 'FIN'

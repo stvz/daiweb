@@ -22,7 +22,7 @@ import  daiweb.settings as conf
 import json, os
 import datetime
 import re , collections 
-
+from models import cat001FormatosXls
 
 class JSONResponseMixin(object):
     """
@@ -72,6 +72,13 @@ class ProcesaArchivos(TemplateView):
 class ImportaFactura(TemplateView):
     template_name= 'tracking/importa_factura.html'
 
+class ImportaArchivo(TemplateView):
+    template_name='tracking/importa_archivo.html'
+    
+    def get_context_data(self,**kwargs):
+        context = super(ImportaArchivo,self).get_context_data(**kwargs)
+        context['formatos'] = cat001FormatosXls.objects.filter(activo__exact=True)
+        return context
     
 #    
 #    
@@ -88,7 +95,9 @@ class PagosHechosReferencia(TemplateView):
 
 class LayoutAbbCfdi(TemplateView):
     template_name= 'reportes/reporte_layout_abb_cfdi.html'
-    
+
+
+
 
 
 @csrf_protect

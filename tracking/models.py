@@ -545,6 +545,59 @@ class bit001facturas(models.Model):
 	
 
 
+#
+#	Utilerias Varias
+#
+
+class cat001CamposXls(models.Model):
+	tipos_ = (
+		('C','Caracteres'),
+		('N','Numerico'),
+		('F','Fecha'),
+		('H','Hora'),
+		('D','Fecha y hora'),
+	)
+	campo_id = models.AutoField(primary_key=True)
+	nombre = models.CharField(max_length=50, db_index=True)
+	descripcion = models.TextField(blank=True, null=True)
+	tipo = models.CharField(max_length=1, choices=tipos_, default='C', db_index=True)
+	
+	def __unicode__(self ):
+		return '%s .-\t%s(%s)'%(self.campo_id,self.nombre,self.tipo)
+	
+	
+	class Meta:
+		permissions = (('can_view_cat001CamposXls','Can View Cat001CamposXls'),)
+		
+
+
+class cat001FormatosXls(models.Model):
+	formato_id = models.AutoField(primary_key=True)
+	nombre = models.CharField(max_length=25, db_index=True)
+	descripcion = models.TextField(blank =True, null=True)
+	fecha_alta = models.DateTimeField(auto_now=True)
+	activo = models.BooleanField(default=True, db_index=True)
+	
+	def __unicode__(self):
+		return '%s'.capitalize()%self.nombre
+	
+	class Meta:
+		permissions = (('can_view_cat001FormatosXls','Can View cat001FormatosXls'),)
+
+class det001FormatoCampos(models.Model):
+	
+	campos = models.AutoField(primary_key=True)
+	formato = models.ForeignKey(cat001FormatosXls)
+	nombre_columna = models.CharField(max_length=150)
+	campo = models.ForeignKey(cat001CamposXls)
+	
+	def __unicode__(self):
+		return '%s: %s(%s)'%(self.formato,self.nombre_columna, self.campo)
+	
+	
+	class Meta:
+		unique_together = (("formato","campos"),)
+		permissions = (('can_view_det001FormatoCampos','Can View det001FotmatoCampos'),)
 
 '''
 class ref001documentos_digitales(models.Model):
