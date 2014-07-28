@@ -27,4 +27,10 @@ urlpatterns = patterns('',
     # Layout ABB CFDIS
     url(r'^reporte_layout_abb_cdfis/$',LayoutAbbCfdi.as_view() ,name='reporte_layout_abb_cfdis'),
     url(r'^get_reporte_layout_abb_cdfis/$',reporte_layout_abb_cdfis ,name='reporte_get_layout_abb_cfdis'),
+    
+    #Utilerias Varias
+    url(r'getReferencia/$',getReferencia, name='getReferencia_zego'),
+    url(r'getProveedor/$',getProveedor, name='getProveedor_zego'),
+    url(r'getCliente/$',getCliente, name='getCliente_zego'),
+    
 )

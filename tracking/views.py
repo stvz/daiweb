@@ -16,7 +16,7 @@ from django.views.generic.detail import BaseDetailView, SingleObjectTemplateResp
 from django.template.loader import render_to_string
 from utils.reportes_extranet import referencias_vivas, pagos_hechos_referencia
 from utils.reportes_extranet.abb_reporte_cfdi import Abb
-
+from utils.InterfazZego import Clientes, Proveedores, Referencias
 import  daiweb.settings as conf
 
 import json, os
@@ -53,6 +53,25 @@ class JSONView(JSONResponseMixin, TemplateView):
 class JSONDetailView(JSONResponseMixin, BaseDetailView):
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self,obj):
+        if isinstance(obj,datetime.date):
+            if hasattr(obj,'isoformat'):
+                return obj.isoformat()
+            else:
+                return str(obj)
+        elif isinstance(obj,datetime.datetime):
+            if hasattr(obj,'isoformat'):
+                return obj.isoformat()
+            else:
+                return str(obj)
+        elif type(obj).__name__ == "Decimal":
+            return float(obj)
+        else:
+            print obj
+        
+        return json.JSONEncoder.default(self,obj)
 
 class ProcesaArchivos(TemplateView):
     template_name= None
@@ -253,3 +272,71 @@ def load_factura(request):
     
     os.remove(os.path.join(default_storage.location,destino_))
     return HttpResponse(json.dumps(factura_.get_estructura()),content_type="application/json")
+
+#
+#   Consultas Varias para metodos AJAX implementados en la interfaz
+#
+@login_required
+@csrf_protect
+def carga_archivo(request):
+    respuesta_ = {'estatus':'error'}
+    if request.method=='POST':
+        archivo_ = request.FILES['archivo_importar']
+        try:
+            destino_ = default_storage.save('%s_%s'.format(nombre_aleatorio(),archivo_.get_name()),ContentFile(archivo_.read()))
+        except:
+            respuesta_['mensaje']='Error al guardar el archivo'
+        
+        importador_ = request.POST.get('id_importador')
+        proveedor_ = request.POST.get('id_proveedor')
+        referencia = request.POST.get('referencia')
+        
+    else:
+        respuesta_['mensaje']='Error de peticion.'
+    return HttpResponse()
+
+@login_required
+@csrf_protect
+def getReferencia(request):
+
+    respuesta_ = {'estatus':'Error'}
+    if request.method =='GET':
+        n_referencia_ = request.GET.get('referencia')
+        obj_ref_ = Referencias.Referencias()
+        referencia_ = obj_ref_.getReferencia(n_referencia_)[0]
+        respuesta_['estatus']='ok'
+        respuesta_.update(referencia_)
+    else:
+        respuesta_['mensaje']='Error al realizar la peticion'
+    
+    return HttpResponse(json.dumps(respuesta_, cls=CustomEncoder, encoding='cp1252'),content_type='application/json')
+
+@login_required
+@csrf_protect
+def getProveedor(request):
+    respuesta_ = {'estatus':'Error'}
+    if request.method =='GET':
+        n_proveedor_ = request.GET.get('proveedor')
+        obj_prov_ = Proveedores.Proveedores()
+        proveedor_ = obj_prov_.getProveedor(_cve=n_proveedor_)[0]
+        respuesta_['estatus']='ok'
+        respuesta_.update(proveedor_)
+    else:
+        respuesta_['mensaje']='Error al realizar la peticion'
+    
+    return HttpResponse(json.dumps(respuesta_, cls=CustomEncoder, encoding='cp1252'),content_type='application/json')
+
+@login_required
+@csrf_protect
+def getCliente(request):
+    respuesta_ = {'estatus':'Error'}
+    if request.method =='GET':
+        n_importador_ = request.GET.get('importador')
+        obj_imp_ = Clientes.Clientes()
+        importador_ = obj_imp_.getCliente(_cve=n_importador_)[0]
+        respuesta_['estatus']='ok'
+        respuesta_.update(importador_)
+    else:
+        respuesta_['mensaje']='Error al realizar la peticion'
+    #print respuesta_
+    return HttpResponse(json.dumps(respuesta_, cls=CustomEncoder, ensure_ascii=True ,encoding='cp1252'),content_type='application/json')
