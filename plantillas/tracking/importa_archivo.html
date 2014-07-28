@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <div class="row clearfix">
+		<div class="col-md-12 column">
+        <!--  -->
+			<form role="form" class="form-inline ">
+                <fieldset class="col-md-6">
+                <legend >Archivo a Importar</legend>
+                    <div class="row"><div class="form-group col-md-6">
+                         <label for="archivo_importar">Archivo:</label>
+                         <input type="file" id="archivo_importar" />
+                        <p class="help-block">
+                            Archivo en formato de excel .xls o xlsx, a importar.
+                        </p>
+                    </div></div>
+                    <div class="row"><div class="form-group col-md-6">
+                        <label for="formatos_disponibles">Formato:</label>
+                        <select class="form-control " id="formatos_disponibles" name="formatos_disponibles">
+                            {% if formatos %}
+                                <option value=0>Seleccione formato...</option>
+                                {% for formato_ in formatos%}
+                                    <option value="{{formato_.formato_id}}">{{formato_.nombre}}</option>
+                                {% endfor %}
+                            {% endif %}
+                           
+                        </select>
+                    </div></div>
+					<div class="row clearfix"><div class="form-group col-md-6" >
+						<button type="button" style='margin-top: 10px' class="btn btn-primary btn-sm" id="btn_importar">Cargar Archivo</button>
+					</div></div>
+                </fieldset>
+			</form>
+        <!-- Informacion de la operacion -->
+            <fieldset class="col-md-6">
+                <legend>Información de la Operación</legend>
+                
+                <div class="column">
+                    <form class="form-horizontal" role="form">
+                        <!-- Referencia -->
+                        <div class="form-group">
+                            <label for="referencia" class="col-sm-2 control-label">Referencia</label>
+                            <div class="col-sm-4">
+                            <input type="text" class="form-control" id="referencia" placeholder="DAI99-99999A" />
+                            </div>
+                        </div>
+                        <!-- Información del Importador sacada de la referencia -->
+                        <div class="form-group">
+                            <label for="id_importador" class="col-sm-2 control-label">Importador</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="id_importador" placeholder="#Importador" />
+                            </div>
+                            <div class="col-sm-7">
+                            <input type="email" class="form-control" id="nombre_importador" placeholder="Nombre Importador" />
+                            </div>
+                        </div>
+                        <!-- Información del Proveedor sacada de la referencia -->
+                        <div class="form-group">
+                            <label for="id_proveedor" class="col-sm-2 control-label">Proveedor</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="id_proveedor" placeholder="#Proveedor" />
+                            </div>
+                            <div class="col-sm-7">
+                            <input type="email" class="form-control" id="nombre_proveedor" placeholder="Nombre Proveedor" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </fieldset>
+
+		</div>
+	</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function(){
+			
+			function importa_archivo(){
+				alert('vamos a importar');
+			}
+			
+			function verificacion(e) {
+				e.stopPropagation();
+                e.preventDefault();
+				
+				cliente_ = $('#id_importador').val();
+				prov_ = $('#id_proveedor').val();
+				
+				if (cliente_ != '') {
+					if (prov_ != '') {
+						if ($('#formatos_disponibles option:selected').val()!='0') {
+							if ($('#archivo_importar').val() != '') {
+								importa_archivo();
+							}else{
+								alert('Debe seleccionar un archivo para importarlo.')
+							}
+						}else{
+							alert('Debe seleccionar el tipo de formato que se va a importar.')
+						}
+					}else{
+						alert('Por favor debe ingresar la clave del proveedor');
+					}
+				}else{
+					alert('Por favor ingrese la clave de importador');
+				}
+			};
+			
+			
+			
+			function getProveedor(_clave) {
+				$.ajax({
+					url: '/tracking/getProveedor/',
+					method: 'GET',
+					dataType: 'json',
+					data: 'proveedor='+_clave,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#nombre_proveedor').val(data.nompro22)
+						}else{
+							alert(data.mensaje)
+						}
+					},
+				})
+			};
+			
+			function getImportador(_clave) {
+				$.ajax({
+					url: '/tracking/getCliente/',
+					method: 'GET',
+					dataType: 'json',
+					data: 'importador='+_clave,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#nombre_importador').val(data.nomcli18)
+						}else{
+							alert(data.mensaje)
+						}
+					},
+				})
+			}
+		   
+		   $('#id_importador').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				getImportador(e.target.value);
+			});
+		   
+		   $('#id_proveedor').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				getProveedor(e.target.value);
+			});
+		   
+		   $('#referencia').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				$.ajax({
+					url: '/tracking/getReferencia',
+					method: 'GET',
+					dataType: 'json',
+					data: 'referencia='+e.target.value,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#id_importador').val(data.impo01);
+							$('#id_proveedor').val(data.prov01);
+							getImportador(data.impo01);
+							getProveedor(data.prov01);
+						}else{
+							alert(data.mensaje)
+						}
+					},
+					
+				});
+			});
+            
+           $('#btn_importar').on('click',verificacion);
+        });
+    </script>
+{% endblock %}
