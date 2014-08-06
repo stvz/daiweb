@@ -52,12 +52,13 @@
             $('#btn_genera_reporte').on('click',function(e){
                 e.stopPropagation();
                 e.preventDefault();
+				
                 datos_ = new FormData();
                 datos_.append('honorarios',$('#honorarios').text());
                 datos_.append('referencias',$('#referencias').text());
                 //$('#tmpFrame').attr('src','/tracking/get_reporte_pagos_hechos_referencia/?honorarios='+$('#honorarios').text()+'&referencias='+$('#referencias').text());
                 
-                
+                $('body').addClass("loading");
                 $.ajax({
                     url: '/tracking/get_reporte_pagos_hechos_referencia/',
                     method: 'POST',
@@ -73,7 +74,10 @@
                         // Handle errors here
                         console.log('ERRORS: ' + textStatus);
                         // STOP LOADING SPINNER
-                    }
+                    },
+					complete: function(data){
+						$('body').removeClass("loading");
+					}
                 });
             });
         });

@@ -38,6 +38,7 @@
 	<link href="{{ MEDIA_URL }}css/bootstrap-editable.css" rel="stylesheet"/>
     <script src="{{ MEDIA_URL }}js/bootstrap-editable.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/scripts.js"></script>
+	<link rel="stylesheet" href="{{ MEDIA_URL }}css/print.css" > 
   {% else %}
 	<!--link rel="stylesheet/less" href="/media/less/bootstrap.less" type="text/css" /-->
 	<!--link rel="stylesheet/less" href="/media/less/responsive.less" type="text/css" /-->
@@ -66,7 +67,8 @@
 	<link href="/media/css/bootstrap-editable.css" rel="stylesheet"/>
     <script src="/media/js/bootstrap-editable.js"></script>
 	<script type="text/javascript" src="/media/js/scripts.js"></script>
-	
+	<link rel="stylesheet" href="/media/css/print.css" > 
+	  
   {% endif %}
 {% endblock %}
   {% block static_js%}
@@ -76,6 +78,36 @@
 	<style type="text/css">
 	  .dropdown-backdrop {
 		position: static;
+	  }
+	  /* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   speak for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+	  .modal {
+		  display:    none;
+		  position:   fixed;
+		  z-index:    1000;
+		  top:        0;
+		  left:       0;
+		  height:     100%;
+		  width:      100%;
+		  background: rgba( 255, 255, 255, .8 ) 
+					  url('/media/img/ajax_loader_blue_64.gif') 
+					  50% 50% 
+					  no-repeat;
+	  }
+	  
+	  /* When the body has the loading class, we turn
+		 the scrollbar off with overflow:hidden */
+	  body.loading {
+		  overflow: hidden;   
+	  }
+	  
+	  /* Anytime the body has the loading class, our
+		 modal element will be visible */
+	  body.loading .modal {
+		  display: block;
 	  }
 	</style>
   {% endblock %}
@@ -110,17 +142,17 @@
 	var csrftoken_ = getCookie('csrftoken');
 	$(document).ready(function(){
 	  
-	  
-	  
 	  $.ajaxSetup({
 		  crossDomain: false, // obviates need for sameOrigin test
 		  beforeSend: function(xhr, settings) {
 			  if (!csrfSafeMethod(settings.type)) {
 				  xhr.setRequestHeader("X-CSRFToken", csrftoken_);
 			  }
-		  }
+		  },
 	  });
+	  
 	});
+	
   </script>
 
 </head>
@@ -128,7 +160,7 @@
 <body>
     <div class="container">
 	  <div class="row clearfix">
-		<div class="col-md-12 column">
+		<div class="col-sm-12 column">
                 <!-- Encabezado -->
                 {% include 'encabezado.html'%}
                 <!-- Menu / Barra de navegacion -->
@@ -139,6 +171,7 @@
             </div>
     	</div>
     </div>
+	<div class="modal" id='modal'><!-- Place at bottom of page --></div>
 	{% block js %}{% endblock %}
 </body>
 </html>

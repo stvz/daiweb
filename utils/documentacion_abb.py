@@ -138,6 +138,7 @@ _cursor = _cxn.cursor()
 # Opciones para el grabado de informacion en DBFS
 # utilizando pyodbc
 #
+
 con_ = pyodbc.connect('DSN=dbf_zego',autocommit=False)
 cursor_ = con_.cursor()
 

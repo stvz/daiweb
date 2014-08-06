@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     
     # importa archivos
     url(r'^importa_archivos/$',ImportaArchivo.as_view(), name='utilerias_importa_archivo'),
+    url(r'^carga_archivo/$',carga_archivo, name='utilerias_carga_archivo'),
     
     
     # Reportes
@@ -32,5 +33,8 @@ urlpatterns = patterns('',
     url(r'getReferencia/$',getReferencia, name='getReferencia_zego'),
     url(r'getProveedor/$',getProveedor, name='getProveedor_zego'),
     url(r'getCliente/$',getCliente, name='getCliente_zego'),
+    
+    url(r'auditoriaPedimento/$',AuditoriaFactura.as_view(), name='auditoria_pedimento'),
+    url(r'auditaPedimento/$',audita_pedimento,name='audita_pedimento'),
     
 )

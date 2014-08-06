@@ -16,13 +16,17 @@ from django.views.generic.detail import BaseDetailView, SingleObjectTemplateResp
 from django.template.loader import render_to_string
 from utils.reportes_extranet import referencias_vivas, pagos_hechos_referencia
 from utils.reportes_extranet.abb_reporte_cfdi import Abb
-from utils.InterfazZego import Clientes, Proveedores, Referencias
+from utils.InterfazZego import Clientes, Proveedores, Referencias 
+from utils.InterfazZego import Facturas, Vuzego, Importaciones, Exportaciones
+from utils.documentacion import ImportaDocumentacion
 import  daiweb.settings as conf
 
-import json, os
+import json, os, reportlab
 import datetime
 import re , collections 
 from models import cat001FormatosXls
+
+respuesta_ = {'estatus':'Error'}
 
 class JSONResponseMixin(object):
     """
@@ -115,7 +119,8 @@ class PagosHechosReferencia(TemplateView):
 class LayoutAbbCfdi(TemplateView):
     template_name= 'reportes/reporte_layout_abb_cfdi.html'
 
-
+class AuditoriaFactura(TemplateView):
+    template_name = 'tracking/auditoria_pedimento.html'
 
 
 
@@ -278,18 +283,162 @@ def load_factura(request):
 #
 @login_required
 @csrf_protect
+def audita_pedimento(request):
+    
+    
+    if request.method =='POST':
+        n_referencia_ = request.POST.get('referencia')
+        n_tipo_ = request.POST.get('tipo_id')
+        saai_fac_ = Facturas.Facturas()
+        facturas_saai_ = saai_fac_.getFacturasSaai(n_referencia_)
+        numeros_factura_ = [ factura_['numfac39'].strip() for factura_ in facturas_saai_ ]
+        clave_proveedores_ =  [ '{0}'.format(int(factura_['cvepro39'])) for factura_ in facturas_saai_ ]
+        vu_ = Vuzego.Vuzego()
+        facturas_vu_ = vu_.getFacturas(_facturas = ','.join(numeros_factura_), _proveedores = ','.join(clave_proveedores_) )
+        if n_tipo_ == '1' or n_tipo_ == 1:
+            operaciones_ = Importaciones.Importaciones()
+        else:
+            operaciones_ = Exportaciones.Exportaciones()
+        
+        referencia_ = operaciones_.getReferencia(n_referencia_)[0]
+        dic_vu_ = None
+        dic_vu_ = [ {registro_['factura']:registro_ } for registro_ in facturas_vu_ ]
+        comparacion_facturas_ = []
+        for factura_ in facturas_saai_:
+            cont_ = -1
+            ban_ = True
+            error_ = False
+            if len(dic_vu_ )>0:
+                if factura_['numfac39'].strip().upper().find('CARTA FACTURA') != -1:
+                    vu_ = Vuzego.Vuzego()
+                    new_facs_ = vu_.getFacturas(_cove=factura_['edocum39'].strip())[0]
+                    dic_vu_.append( {new_facs_['cove']:new_facs_ } )
+                while ban_ and not error_ :
+                    cont_ +=1
+                    try:
+                        if factura_['numfac39'].strip() in dic_vu_[cont_]:
+                            ban_ = False
+                            dic_ = dic_vu_[cont_][factura_['numfac39'].strip()]
+                    except IndexError:
+                        if factura_['edocum39'].strip() in dic_vu_[cont_-1]:
+                            ban_ = False
+                            dic_ = dic_vu_[cont_-1][factura_['edocum39'].strip()]
+                        else:
+                            error_ = True
+            diferencias_ = 0
+            fac_ = {
+                'clave_cliente':[ referencia_['cvecli01']
+                                      ,dic_['clave_cliente'] if not ban_ else  ''
+                                      ,'"glyphicon glyphicon-ok"' if str(referencia_['cvecli01']).strip() == str(dic_['clave_cliente'] if not ban_ else '').strip() else '"glyphicon glyphicon-remove"'
+                                      ,'success' if str(referencia_['cvecli01']).strip() == str(dic_['clave_cliente'] if not ban_ else '').strip() else 'danger'
+                                      ]
+                , 'rfc_cliente':[ referencia_['rfccli01']
+                                 ,dic_['rfc_cliente'] if not ban_ else  ''
+                                 , '"glyphicon glyphicon-ok"' if str(referencia_['rfccli01']).strip() == str(dic_['rfc_cliente'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                                 , 'success' if str(referencia_['rfccli01']).strip() == str(dic_['rfc_cliente'] if not ban_ else  '').strip() else 'danger'
+                                ]
+                , 'nombre_cliente': [ referencia_['nomcli01']
+                                     ,dic_['nombre_cliente'] if not ban_ else  ''
+                                     ,'"glyphicon glyphicon-ok"' if str(referencia_['nomcli01']).strip() == str(dic_['nombre_cliente'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                                     ,'success' if str(referencia_['nomcli01']).strip() == str(dic_['nombre_cliente'] if not ban_ else  '').strip() else 'danger'
+                                     ]
+                , 'factura':[factura_['numfac39']
+                             , dic_['factura'] if not ban_ else  ''
+                             , '"glyphicon glyphicon-ok"' if str(factura_['numfac39']).strip() == str(dic_['factura'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                             , 'success' if str(factura_['numfac39']).strip() == str(dic_['factura'] if not ban_ else  '').strip() else 'danger'
+                             ]
+                , 'fecha_factura': [factura_['fecfac39']
+                                    ,dic_['fecha_factura'] if not ban_ else  ''
+                                    ,'"glyphicon glyphicon-ok"' if str(factura_['fecfac39']).strip() == str(dic_['fecha_factura'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                                    ,'success' if str(factura_['fecfac39']).strip() == str(dic_['fecha_factura'] if not ban_ else  '').strip() else 'danger'
+                                    ]
+                , 'clave_proveedor':[factura_['cvepro39']
+                                     ,dic_['clave_proveedor'] if not ban_ else  ''
+                                    ,'"glyphicon glyphicon-ok"' if str(factura_['cvepro39']).strip() == str(dic_['clave_proveedor'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                                    ,'success' if str(factura_['cvepro39']).strip() == str(dic_['clave_proveedor'] if not ban_ else  '').strip() else 'danger'
+                                    ]
+                , 'moneda': [factura_['monfac39']
+                             ,dic_['moneda_factura'] if not ban_ else  ''
+                             ,'"glyphicon glyphicon-ok"' if str(factura_['monfac39']).strip() == str(dic_['moneda_factura'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                             ,'success'if str(factura_['monfac39']).strip() == str(dic_['moneda_factura'] if not ban_ else  '').strip() else 'danger'
+                             ]
+                , 'valor': [factura_['valmex39']
+                            ,dic_['total_factura'] if not ban_ else  ''
+                            ,'"glyphicon glyphicon-ok"' if float(factura_['valmex39']) == float(dic_['total_factura'] if not ban_ else  0) else '"glyphicon glyphicon-remove"'
+                            ,'success' if float(factura_['valmex39']) == float(dic_['total_factura'] if not ban_ else  0) else 'danger'
+                            ]
+                , 'proveedor': [factura_['nompro39']
+                                ,dic_['nombre_proveedor'] if not ban_ else  ''
+                                ,'"glyphicon glyphicon-ok"' if str(factura_['nompro39']).strip() == str(dic_['nombre_proveedor'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                                ,'success' if str(factura_['nompro39']).strip() == str(dic_['nombre_proveedor'] if not ban_ else  '').strip() else 'danger'
+                                ]
+                , 'cove': [factura_['edocum39']
+                           ,dic_['cove'] if not ban_ else  ''
+                           ,'"glyphicon glyphicon-ok"' if str(factura_['edocum39']).strip() == str(dic_['cove'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                           ,'success' if str(factura_['edocum39']).strip() == str(dic_['cove'] if not ban_ else  '').strip() else 'danger'
+                           ]
+                , 'irs': [ factura_['idfisc39']
+                          ,dic_['irs_proveedor'] if not ban_ else  ''
+                          ,'"glyphicon glyphicon-ok"' if str(factura_['idfisc39']).strip() == str(dic_['irs_proveedor'] if not ban_ else  '').strip() else '"glyphicon glyphicon-remove"'
+                          ,'success' if str(factura_['idfisc39']).strip() == str(dic_['irs_proveedor'] if not ban_ else  '').strip() else 'danger'
+                          ]
+            }
+            for key_ in fac_.keys():
+                if fac_[key_][3] == 'danger':
+                    diferencias_ +=1
+            fac_.update({'diferencias': ['"glyphicon glyphicon-exclamation-sign"' if diferencias_ != 0 else '"glyphicon glyphicon-ok-circle"', diferencias_ , 'warning' ]})
+            comparacion_facturas_.append(fac_)
+            
+        respuesta_['estatus']='ok'
+        respuesta_.update({'facturas':comparacion_facturas_})
+        
+    else:
+        respuesta_['mensaje']='Error al realizar la peticion'
+    
+    return HttpResponse(json.dumps(respuesta_, cls=CustomEncoder, encoding='cp1252'),content_type='application/json')
+
+@login_required
+@csrf_protect
+def pdf_audita_pedimento(request):
+    
+    if request.method =='POST':
+        
+        pass
+    else:
+        respuesta_['mensaje']='Error en el tipo de peticion.'
+        
+    
+    if respuesta_['estatus'] == 'ok':
+        return HttpResponse()
+    else:
+        return HttpResponse()
+
+
+@login_required
+@csrf_protect
 def carga_archivo(request):
     respuesta_ = {'estatus':'error'}
     if request.method=='POST':
-        archivo_ = request.FILES['archivo_importar']
-        try:
-            destino_ = default_storage.save('%s_%s'.format(nombre_aleatorio(),archivo_.get_name()),ContentFile(archivo_.read()))
-        except:
-            respuesta_['mensaje']='Error al guardar el archivo'
+        archivos_ = []
+        #print request.FILES
+        archivos_ = [ { 'archivo':request.FILES.get(key), 'nombre':request.FILES.get(key).name } for key in request.FILES.keys()] 
         
-        importador_ = request.POST.get('id_importador')
-        proveedor_ = request.POST.get('id_proveedor')
-        referencia = request.POST.get('referencia')
+        # Se recorren los archivos que se incluyan en el request
+        # se genera una lista de diccionarios, donde cada uno representa
+        # cada archivo encontrado.
+        for indice_ in range(len(archivos_)):
+            try:
+                archivos_[indice_]['ruta'] = default_storage.save('temp/archivos_importados/%s_%s'.format(nombre_aleatorio(),archivos_[indice_]['nombre']),ContentFile(archivos_[indice_]['archivo'].read()))
+            except:
+                respuesta_['mensaje']='Error al guardar el archivo'
+        #
+        importador_ = request.POST.get('importador',-1)
+        proveedor_ = request.POST.get('proveedor',-1)
+        referencia_ = request.POST.get('referencia','')
+        formato_ = request.POST.get('formato')
+        print archivos_
+        
+        
         
     else:
         respuesta_['mensaje']='Error de peticion.'
@@ -303,9 +452,16 @@ def getReferencia(request):
     if request.method =='GET':
         n_referencia_ = request.GET.get('referencia')
         obj_ref_ = Referencias.Referencias()
-        referencia_ = obj_ref_.getReferencia(n_referencia_)[0]
-        respuesta_['estatus']='ok'
-        respuesta_.update(referencia_)
+        try:
+            referencia_ = obj_ref_.getReferencia(n_referencia_)
+            if len(referencia_) > 0:
+                referencia_ = referencia_[0]
+                respuesta_['estatus']='ok'
+                respuesta_.update(referencia_)
+            else:
+                respuesta_['mensaje']='Referencia no encontrada en Zego'
+        except Exception as e:
+            respuesta_['mensaje']= e
     else:
         respuesta_['mensaje']='Error al realizar la peticion'
     

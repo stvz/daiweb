@@ -24,7 +24,6 @@ class Referencias(Base):
         
         self.conexionODBC('dbf_zego')
         referencia_ = self.dictResult(_consulta="select * from c01refer where refe01 = '{0}'".format(_referencia))
-        referencia_
         self.cerrarODBC()
         return referencia_
     

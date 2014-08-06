@@ -97,7 +97,7 @@
 				$.each($('#tb_archivos > tbody > tr > td > input:file'),function(key,value){
 					datos_.append(value.id,value.files[0])
 				});
-				
+				$('body').addClass("loading");
 				$.ajax({
 					url: $('#form_cfdis').attr('action'),
 					method: $('#form_cfdis').attr('method'),
@@ -119,7 +119,10 @@
                         // Handle errors here
                         console.log('ERRORS: ' + textStatus);
                         // STOP LOADING SPINNER
-                    }
+                    },
+					complete: function(data){
+						$('body').removeClass("loading");
+					}
 				});
 			};
 			

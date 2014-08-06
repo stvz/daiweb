@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <div class="row clearfix">
+		<div class="col-sm-12 column">
+        <!-- Informacion de la operacion -->
+            <fieldset class="col-sm-12">
+                <legend>Información de la Operación</legend>
+                
+                <div class="column">
+                    <form class="form-horizontal" id='referencia_frm' name='referencia_frm'  role="form" action='/tracking/auditaPedimento/' method='POST'>
+                        <!-- Referencia -->
+                        <div class="form-group print-row">
+                            <label for="referencia" class="col-sm-2 control-label print-col">Referencia</label>
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control print-small print-col" id="referencia" placeholder="DAI99-99999A" />
+                            </div>
+                            <label for="tipo" class="col-sm-2 control-label print-col">Tipo</label>
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control print-small print-col" id="tipo_txt" />
+                            <input type="hidden" class="form-control" id="tipo_id" />
+                            
+                            </div>
+                        </div>
+                        <!-- Información del Importador sacada de la referencia -->
+                        <div class="form-group print-row">
+                            <label for="id_importador" class="col-sm-2 control-label print-col">Importador</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control print-small print-col" id="id_importador" placeholder="#Importador" />
+                            </div>
+                            <div class="col-sm-7">
+                            <input type="text" class="form-control print-xxlarge print-col" id="nombre_importador" placeholder="Nombre Importador" />
+                            </div>
+                        </div>
+                        <!-- Información del Proveedor sacada de la referencia -->
+                        <div class="form-group print-row">
+                            <label for="id_proveedor" class="col-sm-2 control-label print-col">Proveedor</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control print-small print-col" id="id_proveedor" placeholder="#Proveedor" />
+                            </div>
+                            <div class="col-sm-7">
+                            <input type="text" class="form-control print-xxlarge print-col" id="nombre_proveedor" placeholder="Nombre Proveedor" />
+                            </div>
+                        </div>
+                        <button type="button" id='btn_verificar' class="btn btn-default">Verificar</button>
+                    </form>
+                </div>
+            </fieldset>
+
+		</div>
+		<!-- Seccion de las mercancias obtenidar a partir del procesado del archivo -->
+		<div class="col-sm-12 column" id='div_resultado' style='display: none;'>
+			 <fieldset class="col-sm-12">
+				<legend>Verificacion</legend>
+			
+			<table class="table tree" id="tbl_resultado">
+				<thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valor Saai</th>
+                        <th>Valor Vuzego</th>
+                        <th></th>
+                    </tr>
+				</thead>
+				<tbody id="tbl_body_resultado">
+				</tbody>
+				<tfoot></tfoot>
+			</table>
+			 </fieldset>
+		</div>
+		
+	</div>
+{% endblock %}
+
+{% block js %}
+    {% if MEDIA_URL %}
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.treegrid.js"></script>
+		<link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.treegrid.css">
+	{% else %}
+		<script type="text/javascript" src="/media/js/jquery.treegrid.js"></script>
+		<link rel="stylesheet" href="/media/css/jquery.treegrid.css">
+	{% endif %}
+    
+    <script>
+        $(document).ready(function(){
+			
+            function verificar(e){
+                e.stopPropagation();
+				e.preventDefault();
+				$('body').addClass("loading");
+                $.ajax({
+                    url:  $('#referencia_frm').attr('action'),
+                    method: $('#referencia_frm').attr('method'),
+                    data: 'referencia='+$('#referencia').val()+'&tipo_id='+$('#tipo_id').val() ,
+                    success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#tbl_body_resultado').empty()
+							
+                            for(var i=0;i<data.facturas.length;i++){
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+" "+data.facturas[i].factura[3]+" ' id='fila_"+i+"00' ><td>"+(i+1)+": Numero Factura</td><td>"+data.facturas[i].factura[0]+"</td><td>"+data.facturas[i].factura[1]+"</td><td><span class="+data.facturas[i].factura[2]+"></span> <span class="+data.facturas[i].diferencias[0]+"></span><span class='badge'>"+data.facturas[i].diferencias[1]+"</span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"01 treegrid-parent-"+i+" "+data.facturas[i].fecha_factura[3]+"'  id='fila_"+i+"01'><td>Fecha Factura</td><td>"+data.facturas[i].fecha_factura[0]+"</td><td>"+data.facturas[i].fecha_factura[1]+"</td><td><span class="+data.facturas[i].fecha_factura[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"02 treegrid-parent-"+i+" "+data.facturas[i].clave_cliente[3]+"' id='fila_"+i+"02'><td>Clave Importador</td><td>"+data.facturas[i].clave_cliente[0]+"</td><td>"+data.facturas[i].clave_cliente[1]+"</td><td><span class="+data.facturas[i].clave_cliente[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"03 treegrid-parent-"+i+" "+data.facturas[i].nombre_cliente[3]+"' id='fila_"+i+"03'><td>Nombre Importador</td><td>"+data.facturas[i].nombre_cliente[0]+"</td><td>"+data.facturas[i].nombre_cliente[1]+"</td><td><span class="+data.facturas[i].nombre_cliente[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"04 treegrid-parent-"+i+" "+data.facturas[i].rfc_cliente[3]+"' id='fila_"+i+"04'><td>RFC Importador</td><td>"+data.facturas[i].rfc_cliente[0]+"</td><td>"+data.facturas[i].rfc_cliente[1]+"</td><td><span class="+data.facturas[i].rfc_cliente[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"05 treegrid-parent-"+i+" "+data.facturas[i].clave_proveedor[3]+"' id='fila_"+i+"05'><td>Clave Proveedor</td><td>"+data.facturas[i].clave_proveedor[0]+"</td><td>"+data.facturas[i].clave_proveedor[1]+"</td><td><span class="+data.facturas[i].clave_proveedor[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"06 treegrid-parent-"+i+" "+data.facturas[i].proveedor[3]+"'><td>Nombre Proveedor</td><td>"+data.facturas[i].proveedor[0]+"</td><td>"+data.facturas[i].proveedor[1]+"</td><td><span class="+data.facturas[i].proveedor[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"07 treegrid-parent-"+i+" "+data.facturas[i].irs[3]+"'><td>IRS Proveedor</td><td>"+data.facturas[i].irs[0]+"</td><td>"+data.facturas[i].irs[1]+"</td><td><span class="+data.facturas[i].irs[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"08 treegrid-parent-"+i+" "+data.facturas[i].cove[3]+"'><td>COVE</td><td>"+data.facturas[i].cove[0]+"</td><td>"+data.facturas[i].cove[1]+"</td><td><span class="+data.facturas[i].cove[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"09 treegrid-parent-"+i+" "+data.facturas[i].moneda[3]+"'><td>Moneda</td><td>"+data.facturas[i].moneda[0]+"</td><td>"+data.facturas[i].moneda[1]+"</td><td><span class="+data.facturas[i].moneda[2]+"></span></td></tr>");
+                                $('#tbl_body_resultado').append("<tr class='treegrid-"+i+"10 treegrid-parent-"+i+" "+data.facturas[i].valor[3]+"'><td>Valor Factura</td><td>"+data.facturas[i].valor[0]+"</td><td>"+data.facturas[i].valor[1]+"</td><td><span class="+data.facturas[i].valor[2]+"></span></td></tr>");
+                                
+                            };
+                            $('#div_resultado').css('display','block');
+                            $('.tree').treegrid();
+							for(var i=0;i<data.facturas.length;i++){
+								id_ = "#fila_"+i+"00"
+								$(id_).treegrid('collapseAll');
+							}
+							
+						}else{
+							alert(data.mensaje)
+						}
+						
+					},
+					complete: function(data){
+						$('body').removeClass("loading");
+					}
+                })
+                
+            };
+            
+			function getProveedor(_clave) {
+				$('body').addClass("loading");
+				$.ajax({
+					url: '/tracking/getProveedor/',
+					method: 'GET',
+					dataType: 'json',
+					data: 'proveedor='+_clave,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#nombre_proveedor').val(data.nompro22)
+						}else{
+							alert(data.mensaje)
+						}
+					},
+					complete: function(data, textStatus, jqXHR){
+						$('body').removeClass("loading");
+					},
+				})
+			};
+			
+			function getImportador(_clave) {
+				$('body').addClass("loading");
+				$.ajax({
+					url: '/tracking/getCliente/',
+					method: 'GET',
+					dataType: 'json',
+					data: 'importador='+_clave,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#nombre_importador').val(data.nomcli18)
+						}else{
+							alert(data.mensaje)
+						}
+					},
+					complete: function(data){
+						$('body').removeClass("loading");
+					}
+				})
+			}
+		   
+		   $('#id_importador').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				getImportador(e.target.value);
+			});
+		   
+		   $('#id_proveedor').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				getProveedor(e.target.value);
+			});
+		   
+		   $('#referencia').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				$('body').addClass("loading");
+				$('#div_resultado').css('display','none');
+				$('#tbl_body_resultado').empty();
+				$('#id_importador').val('');
+				$('#id_proveedor').val('');
+				$('#nombre_importador').val('');
+				$('#nombre_proveedor').val('');
+				$.ajax({
+					url: '/tracking/getReferencia',
+					method: 'GET',
+					dataType: 'json',
+					data: 'referencia='+e.target.value,
+					processData: false,
+					contentType: false,
+					success: function(data, textStatus, jqXHR){
+						if (data.estatus=='ok') {
+							$('#id_importador').val(data.impo01);
+							$('#id_proveedor').val(data.prov01);
+                            switch (data.tipo01) {
+                                case 1:
+                                    $('#tipo_txt').val('Importacion');
+                                    $('#tipo_id').val(1);
+                                    break;
+                                case 2:
+                                    $('#tipo_txt').val('Exportacion');
+                                    $('#tipo_id').val(2);
+                                    break;
+                                default:
+                                    $('#tipo_txt').val('');
+                                    $('#tipo_id').val(0);
+                            }
+							getImportador(data.impo01);
+							getProveedor(data.prov01);
+						}else{
+							alert(data.mensaje)
+						}
+					},
+					complete: function(data){
+						$('body').removeClass("loading");
+					}
+					
+				});
+			});
+            
+           $('#btn_verificar').on('click',verificar);
+		   
+        });
+    </script>
+{% endblock %}

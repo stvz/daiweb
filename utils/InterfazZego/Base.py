@@ -18,13 +18,13 @@ class Base():
         if _consulta != '':
             
             if self._odbc_cursor:
-                print _consulta,'\n'
                 cursor_ = self._odbc_cursor.execute("{0}".format(_consulta))
+                
                 campos_ = [columna[0] for columna in cursor_.description]
                 resultado_ = []
+                
                 for fila_ in cursor_.fetchall():
                     resultado_.append(dict(zip(campos_,fila_)))
-                
                 return resultado_
         elif _cursor:
             if isinstance(_cursor,pyodbc.Cursor):

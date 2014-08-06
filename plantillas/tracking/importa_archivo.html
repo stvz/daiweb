@@ -9,7 +9,7 @@
                 <legend >Archivo a Importar</legend>
                     <div class="row"><div class="form-group col-md-6">
                          <label for="archivo_importar">Archivo:</label>
-                         <input type="file" id="archivo_importar" />
+                         <input type="file" id="archivo_importar" name="archivo_importar" />
                         <p class="help-block">
                             Archivo en formato de excel .xls o xlsx, a importar.
                         </p>
@@ -69,40 +69,74 @@
             </fieldset>
 
 		</div>
+		<!-- Seccion de las mercancias obtenidar a partir del procesado del archivo -->
+		<div class="col-md-12 column" id='div_mercancias' style='display: none;'>
+			<h4>
+				Mercancias
+			</h4>
+			<table class="table table-striped header-fixed" id="tbl_mercancias">
+				<thead>
+				</thead>
+				<tbody id="tbl_body_mercancias">
+				</tbody>
+			</table>
+		</div>
+		
 	</div>
 {% endblock %}
 
 {% block js %}
     <script>
+		
         $(document).ready(function(){
 			
+			var archivos_ ;
+			
 			function importa_archivo(){
-				alert('vamos a importar');
+				
+				/* Preparando un objeto para almacenar la informacion a transmitir*/
+				var transmision_ = new FormData();
+				transmision_.append('referencia',$('#referencia').val());
+				transmision_.append('importador',$('#id_importador').val());
+				transmision_.append('proveedor',$('#id_proveedor').val());
+				transmision_.append('formato',$('#formatos_disponibles option:selected').val());
+				$.each(archivos_, function(key,value){
+					transmision_.append(key,value);
+				});
+				
+				$.ajax({
+					url: '/tracking/carga_archivo/',
+					method: 'POST',
+					data: transmision_,
+					processData: false,
+					contentType: false,
+					success: function(data,textStatus,jqXHR){
+						if (data.estatus=='ok') {
+							
+						}
+					},
+					error : function(jqXHR, textStatus, errorThrown){
+                        // Handle errors here
+                        console.log('ERRORS: ' + textStatus);
+                        // STOP LOADING SPINNER
+                    }
+				})
+				
 			}
 			
 			function verificacion(e) {
 				e.stopPropagation();
                 e.preventDefault();
 				
-				cliente_ = $('#id_importador').val();
-				prov_ = $('#id_proveedor').val();
 				
-				if (cliente_ != '') {
-					if (prov_ != '') {
-						if ($('#formatos_disponibles option:selected').val()!='0') {
-							if ($('#archivo_importar').val() != '') {
-								importa_archivo();
-							}else{
-								alert('Debe seleccionar un archivo para importarlo.')
-							}
-						}else{
-							alert('Debe seleccionar el tipo de formato que se va a importar.')
-						}
+				if ($('#formatos_disponibles option:selected').val()!='0') {
+					if ($('#archivo_importar').val() != '') {
+						importa_archivo();
 					}else{
-						alert('Por favor debe ingresar la clave del proveedor');
+						alert('Debe seleccionar un archivo para importarlo.')
 					}
 				}else{
-					alert('Por favor ingrese la clave de importador');
+					alert('Debe seleccionar el tipo de formato que se va a importar.')
 				}
 			};
 			
@@ -181,6 +215,11 @@
 			});
             
            $('#btn_importar').on('click',verificacion);
+		   $('#archivo_importar').on('change',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				archivos_ = e.target.files;
+		   });
         });
     </script>
 {% endblock %}
